@@ -1,0 +1,35 @@
+---
+- name: copy elasticsearch deb file to host
+  copy: 
+    src: elasticsearch-2.4.1.deb
+    dest: /home/elastic
+
+- name: install elasticsearch
+  apt:
+    deb: /home/elastic/elasticsearch-2.4.1.deb
+
+- name: update default conf
+  template: 
+    src: defaults.j2
+    dest: /etc/default/elasticsearch
+
+#- name: Ensures systemd override dir exists
+#  file: path=/etc/systemd/system/elasticsearch.service.d/ state=directory
+#
+#- name: update limits
+#  copy:  
+#    src: limits.conf
+#    dest: /etc/systemd/system/elasticsearch.service.d/elasticsearch.conf
+#  notify: reload sysctl
+
+- name: install elasticsearch config file
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+  notify: restart elasticsearch service
+
+- name: start elasticsearch service
+  service:
+    name: elasticsearch
+    state: started
+    enabled: yes

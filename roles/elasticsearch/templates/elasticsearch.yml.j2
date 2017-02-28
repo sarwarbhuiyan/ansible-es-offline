@@ -1,0 +1,18 @@
+cluster.name: elasticsearch-nuix
+
+node.name: elasticsearch-{{ inventory_hostname }} 
+
+network.host: {{ ansible_host }}
+
+discovery.zen.ping.unicast.hosts: 
+ {% for host in groups['master'] %}
+ - {{ hostvars[host]['ansible_host'] }}
+ {% endfor %}
+
+discovery.zen.minimum_master_nodes: 2
+
+node.master: {% if inventory_hostname in groups['master'] %}true{% else %}false{% endif %}
+
+node.data: {% if inventory_hostname in groups['data'] %}true{% else %}false{% endif %} 
+
+bootstrap.memory_lock: true  
